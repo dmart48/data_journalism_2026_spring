@@ -1,0 +1,98 @@
+---
+title: "lab_01"
+author: "Danny Martella"
+date: "2025-01-16"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# Turn off scientific notation
+options(scipen=999)
+```
+
+## About this lab
+
+To complete this lab, you need to: \* run existing code as directed (look for **Task**). \* modify existing code as directed (look for **Task**). \* write code in empty codeblocks provided to answer questions included (look for **Q**). \* write out the answer in the form of a complete sentence in the space given (look for **A**). When you are finished, commit changes and push to your personal GitHub repo, then submit the URL to this document on ELMS.
+
+Remember to add any new verbs or concepts to your class reference notebook!
+
+## Load libraries and establish settings
+
+**Task** Run the codeblock below to load the Tidyverse. To run the codeblock, hit the little green play button in the upper right corner of the gray area (the codeblock) below.
+
+```{r}
+# Load the tidyverse. If you have not installed the tidyverse already, remove the # from the next line and run it first.  
+# install.packages('tidyverse')
+library(tidyverse)
+```
+
+## Load Data
+
+We're going to load the Maryland churches data and the megachurches data.
+
+**Task** Run the codeblock below to load the data, which is contained in CSV files.
+
+```{r}
+md_churches <- read_csv("churches_md.csv")
+megachurches <- read_csv("megachurches.csv")
+```
+
+## Answer questions
+
+**Q1** Which NTEE classification code (the NTEE_CD column) has the most churches in Maryland? Show the classification codes (you can find out what they mean here: https://www.irs.gov/pub/irs-soi/eo-info.pdf) with the highest count first. Is this result useful? Why or why not? **A1**
+
+```{r}
+md_churches |>
+  group_by(NTEE_CD)|>
+  summarise(
+    count = n()
+  ) |>
+  arrange(desc(count))
+```
+
+#The largest group of churches is not designated by a National Taxonomy of Exempt Entities Code but the largest designated code is X20 which means it is religion related, specifically Christianity. I think this result is useful because the most common codes designate major religions, potentially showing the religious demographics of the state. It is not end all be all data, as some "churches" may not be registered on this list or may be registered under a more specific code but still fall into one of the major religions. 
+
+
+
+**Q2** Find out which denomination has the greatest average (mean) size for its megachurches. Your code must show the denomination with the greatest average size first. **A2**
+
+```{r}
+megachurches |>
+  group_by(denomination) |>
+  summarize(
+    mean_size = mean(size)
+  ) |>
+  arrange(desc(mean_size))
+
+```
+
+**Q3** Count the number of megachurches for each state and city combination. Which state/city combination has the most megachurches? Which city is the most surprising, and why? **A3**
+
+```{r}
+megachurches |>
+group_by(state, city) |>
+  summarize(
+    count = n()
+  ) |>
+  arrange(desc(count))
+```
+#Houston, Texas has the most megachurches in the country, according to this data. Texas even has the top three most amount of megachurches in a city. I don't think this is surprising because I think the south is generally more religious than other parts of the country, especially Texas. This also doesn't surprise me becuase the top six cities on the list are all some of the most populated cities in America, which means they need larger churches to accomodate the masses (no pun intended). 
+
+
+**Q4** Given the results for Q3, what's a story that you could tell with this information? Think broadly, and consider what additional information you might need to make your story stronger. You also should think about what cities and states aren't in the results. **A4**
+
+# A story that I am curious about based on this data is how much money megachurches bring in, and how much the leaders of these churches make. This idea has come up recently as a famous comedian, Druski, did a viral skit about pastors of megachurches and how grandiose they are. I imagine in major cities, these megachurches could be bringing in millions of dollars and who knows how much the leaders are taking from that. We would need to find the biggest megachurches in each of these major cities and try to find financial records, or get a sense of how many donations they bring in, if they have sponsors, where the money is going. 
+
+**Q5** Take one of the questions you listed in the final question of the pre_lab and try to answer it here in code. If you don't know how to fully answer it, write what code you can and describe in words what else you would need to do. If you got an answer, is it interesting? **A5**
+
+```{r}
+md_churches |>
+group_by(ICO) |>
+  summarize(
+    count = n()
+  ) |>
+arrange(desc(count))
+```
+
+#I think this result is VERY interesting. Who is Christina Copper and why is she in care of 34 churches? They is she in care of 30 more churches than the next person. What does this mean for her? I looked up her name on google, "Christina Copper Maryland," and "Christina Copper Maryland Churches," and I could not find anything. I also looked her up on Facebook and did not find anything of note. 
