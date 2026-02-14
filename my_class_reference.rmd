@@ -33,3 +33,6 @@ setwd("~/jour472/data_journalism_2026_spring")
 install.packages("tidyverse")
 library(tidyverse)
 ```
+
+
+

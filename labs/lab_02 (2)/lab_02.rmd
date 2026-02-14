@@ -1,0 +1,126 @@
+---
+title: "lab_02"
+author: "Derek Willis"
+date: "2026-01-16"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load libraries and establish settings
+
+```{r}
+# Turn off scientific notation
+options(scipen=999)
+
+library(tidyverse)
+library(lubridate)
+```
+
+## Load Data
+
+Let's keep working with the Maryland churches data and the Maryland campaign expenses data we used in the pre_lab. Write code to load those two CSV files from the data folder.
+
+```{r}
+md_churches <- read_csv("data/churches_md.csv")
+maryland_expenses <- read_csv("data/md_church_expenditures.csv")
+
+head(maryland_expenses)
+
+```
+
+## Answer questions
+
+**Q1.** How many churches in Maryland have "ORTHODOX" in their name? Which cities have the most churches with "ORTHODOX" in the name, and how does that compare to city totals for all churches in Maryland?
+
+**A1.**
+# There are 48 churches in Maryland that have the word "ORTHODOX" in their name. Baltimore and Silver Spring have the most amound of churches with "ORTHODOX" in the name with five. These are the same two that have the most amount of churches in Maryland generally, so it makes sense for them to be top two again. Hyattsville and Rockville also crack the top 10 on both lists. Cities like Bethesda and Potomac are lower in the general churches rankings but still have more orthodox churches than other cities above them. This is not saying a lot however because they still only have three and two orthodox churches respectively. 
+
+```{r}
+  ortho_churches <- md_churches |>
+  filter(str_detect(NAME, "ORTHODOX"))
+ortho_churches |>
+  group_by(CITY) |>
+  summarise(
+    count = n()
+  ) |>
+  arrange(desc(count))
+```
+
+**Q2.** Of the churches and cities listed in A1, which ones are the most interesting to you, and why? What's a good reporting question you have about them?
+
+**A2.**
+# As I mentioned in A1, Bethesda is interesting because it ranks 32nd in total churches but has the second most amount of orthodox churches. A good reporting question could by what is the density of orthodox people in Maryland? Why is Bethesda higher on the list? Potomac, Rockville and Bethesda are on all in the Top 10 and they are all neighboring cities. 
+
+**Q3** The campaign expense data contains payments to churches in Maryland. Write code that finds only those payments made to churches by party central committees (there are a couple of ways to do this, but one simple way). Then write code to find which party committee spent the most total dollars and how much did they spend? **A3.**
+
+```{r}
+md_church_expenditures |> filter(`Committee Type` == "Party Central") |>
+  group_by(`Committee Name`) |>
+  summarise(
+    amount_spent = sum(`Transaction Amount`)
+  ) |>
+  arrange(desc(amount_spent))
+
+```
+
+**Q4.** Using the same Maryland campaign expenses data, change the datatype of the `Transaction Date` column so that it is a date and not a chr, saving the result as the same dataframe. Then create a new column for the week based on `Transaction Date` using the `week()` function (representing the week of the year). Then write code that shows the total amount spent each week using that new column. Write a sentence describing the pattern of spending over time - when has there been more spending and when has there been less? **A4.**
+
+#I could not figure out how to do this question. I copied and pasted the question into CHATGPT and it gave me this code but when I tried to run it, the table that it spit out didn't work. I also tried looking up how to use the week() function but I still could not find anything useful. 
+
+```{r}
+
+maryland_expenses <- maryland_expenses |>
+  mutate(`Transaction Date` = as.Date(`Transaction Date`, format = "%m/%d/%Y"))
+
+maryland_expenses <- maryland_expenses |>
+  mutate(`Transaction Date` = mdy(`Transaction Date`)) |>
+  mutate(week = week(`Transaction Date`))
+
+weekly_expenditures <- maryland_expenses |>
+  filter(!is.na(week)) |>
+  group_by(week) |>
+  summarise(
+    weekly_total = sum(`Amount Spent`, na.rm = TRUE)
+  ) |>
+  arrange(week)
+
+weekly_expenditures
+
+```
+
+**Q5.** Using the `md_churches` data, create a column using `mutate()` and `case_when()` that tries to accomplish the same thing we did in the pre_lab - pulling the denomination or faith from church names. This will take longer than the pre_lab because there are more churches in the data, and you should use <https://www.thearda.com/us-religion/census/congregational-membership?y=2020&y2=0&t=1&c=24> as a reference for the most common denominations in Maryland. What you want is to populate your new column with something like the "Family" column on that web page, using "Other" for those you're not able to classify. After creating your new column, write code that shows the top five denominations or faiths by number of churches in Maryland. You won't get all of them, but try to get as many as you can. Do these totals seem accurate to you? Are there denominations or faith groups that are obviously missing? Which one(s)?
+
+**A5**
+
+```{r}
+md_churches <- md_churches |>
+  mutate(
+    denomination = case_when(
+        str_detect(NAME, "BAPTIST") ~ "Baptist",
+        str_detect(NAME, "CATHOLIC") ~ "Catholic",
+        str_detect(NAME, "METHODIST") ~ "Methodist",
+        str_detect(NAME, "PRESB") ~ "Presbyterian",
+        str_detect(NAME, "LUTHERAN") ~ "Lutheran",
+        str_detect(NAME, "EPISCOPAL") ~ "Episcopal",
+        str_detect(NAME, "AME") ~ "AME",
+        str_detect(NAME, "PENTECOSTAL") ~ "Pentecostal",
+        str_detect(NAME, "LATTER_DAY SAINTS") ~ "Mormon",
+        .default = NA
+      )
+  )
+
+
+```
+
+```{r}
+md_churches |>
+  group_by(denomination) |>
+  summarise(
+    count = n()
+  ) |>
+  arrange(desc(count))
+```
+#These totals are definitely not accurate because we can't figure out every churches denomination just from their name. If we really went down the list and found every church's denomination we would probably see a lot more non-denominational, and a lot more data rather than "N/A". What were missing from this data, besides 5579 churhces is the mormon churches, non-christian faiths and other smaller faith groups that may not put their faith title in the church name. Otherwise, from the data we did get, the top five denominations seem fair in terms of popularity in Maryland. Based on the table from the website, these are the more common denominations. 
