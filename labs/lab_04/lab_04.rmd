@@ -1,0 +1,150 @@
+---
+title: "lab_04"
+author: "Danny Martella"
+date: "2026-01-14"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## About this lab
+
+To complete this lab, you need to: \* run existing code as directed (look for **Task**). \* modify existing code as directed (look for **Task**). \* write code in empty codeblocks provided to answer questions included (look for **Q**). \* write out the answer in the form of a complete sentence in the space given (look for **A**).
+
+When you are finished, commit changes and push to your personal GitHub repo, then submit the URL to this document on ELMS.
+
+## Load libraries and establish settings
+
+You'll need to load two packages for this: the tidyverse and janitor.
+
+**Task** load these two packages.
+
+```{r}
+# Turn off scientific notation
+options(scipen=999)
+```
+
+For this lab, we want to investigate payments by Maryland state agencies to church-related organizations. For example, we could ask which churches or religious organizations have received the most money from the state? Which state agencies make the most payments to religious organizations? We have the data, but it's messy - names of vendors are spelled differently and capitalized differently - and we need to clean it up. We'll use a combination of RStudio and OpenRefine to do that.
+
+The basic process here is to start in RStudio, export data so that we can use OpenRefine to clean it up, and then bring it back into RStudio to finish our analysis.
+
+## Load Data
+
+You'll need to load one data set, a CSV file of Maryland payments to church-related organizations located in the data folder called "church_payments.csv"
+
+**Task** Create a codeblock below, then read the data in and assign it to an appropriate variable name. You'll want to clean up the column names.
+
+```{r}
+install.packages('janitor')
+library(janitor)
+library(tidyverse)
+library(lubridate)
+library(refinr)
+church_payments <- read.csv("data/church_payments.csv")
+cleaned_church_payments <- church_payments |>
+  clean_names()
+```
+
+## Answer questions
+
+**Q1.** You've been assigned to investigate payments by Maryland state agencies to various religious organizations. There's a vendor_name column in the data, but it has variations in how many of them are listed. You'll need to complete the following steps:
+
+1. Write code to see the leading recipients to get a sense of which organizations you'll want to focus your cleaning efforts on. Keep that handy.
+2. Using OpenRefine, create a project using the original CSV file, create a copy of the `vendor_name` column called `vendor_clean` and then standardize it, focusing on the vendors that appear most often. Pay particular attention to variations of the top recipients, but also clean up other common vendors you notice.
+3. When you are done standardizing `vendor_clean`, export it as a new CSV file to your data folder, *giving it a different name* and read it back into RStudio as a new dataframe.
+4. Using that `vendor_clean` column in your new dataframe, calculate the total amount of payments to the leading recipients. Compare it to the totals you generated in step 2 and describe the differences.
+
+**A1.**
+
+```{r}
+cleaned_church_payments |>
+  group_by(vendor_name) |>
+  summarise(
+    count=n()
+  ) |>
+  arrange(desc(count))
+```
+
+```{r}
+refined_church_payments <- read_csv("data/refined-church-payments.csv")
+refined_church_payments |>
+  group_by(vendor_cleaned) |>
+  summarise(
+    count=n()
+  ) |>
+  arrange(desc(count))
+```
+
+# In the unrefined data we see different variants of Catholic Charities, but in the refined data grouped all the Associated Catholic Charities together. We also see an increase in the Salvation army from 30 to 80, putting it top three. Otherwise we just see different organizations rounding out the top ten that were not seen in the last group. 
+
+
+**Q2.** Let's examine the top recipients of state payments. Using your cleaned dataframe from Q1, for the top 10 organizations, look up what kind of services they provide. Are they churches that run social service programs? Religious-affiliated nonprofits? Care facilities? Write some sentences describing what you found about the top recipients.
+
+**A2.**
+#Associated Catholic Charities offer a wide range of services that help people in need. For example they help people with employment, housing, meals, and crisis intervention. The Catholic Charities ADW St. Sebastian Townhomes is permanent housing for people with mental illness and physical disabilities. You must have documentation or have been referred to be eligible for the program. Salvation Army primarily provides food and housing for people in need. It describes itself as, "an evangelical part of the universal Christian Church." Diakon Lutheran Social Ministries provides housing and family services to those in need in Pennsylvania and Maryland. They also offer adoption and behavioral health services. An group that stands out in the list is Washington Adventist University, in Takoma Park. This is a university of only about 1,000 students that is owned by the Seventh-Day Adventist Church. Although they apparently have a good nursing and music program, they recieve a lot of donations for such a small, specific school. 
+
+
+**Q3.** Which state agencies have made the most payments to religious organizations? Calculate the total amount paid by each agency (using `agency_name`) and show the top 10 agencies. What do you notice about the agencies making these payments? Why might these particular agencies be paying religious organizations? What could you do to improve the accuracy of the results?
+
+**A3.** 
+
+```{r}
+refined_church_payments |>
+  group_by(agency_name) |>
+  summarise(
+    count=n()
+  ) |>
+  arrange(desc(count))
+```
+
+#The agency that made the most payments was Maryland's Department of Education. The Department of Education is the first and second highest donor by about 800 payments. Other departments that are in the top ten are the Departments of Housing and Community Development, Health, and Human Services. These agencies make sense because they are meant to support the public in ways that these charities align themselves with. The fact that the Department of Education is interesting because the main recipients are not organizations that primarily provide education. I would never complain about the government supporting charitable organizations, but the Department of Education has a lot of other outlets that need funding (like paying teachers better wages). To be fair, there are also many organizations in this list that provide education. These agnecies are paying religious organizations because religious organizations often provide charitable services and have service of the underprivelaged as a core value. To improve these results, we could refine the data like we did in the last step. There are repeating agencies in the top 10, so we could get a better sense of other agencies or organizations donating money. 
+
+**Q4.** Let's look at the data over time. Using your cleaned dataframe, calculate the total amount paid to religious organizations by fiscal year. Which years saw the highest total payments? Create a sentence or two describing the trend you observe. Then, pick one of the top-spending agencies from Q3 and calculate its yearly payments to religious organizations. How does this agency's spending pattern compare to the overall trend?
+
+**A4.**
+
+
+
+```{r}
+refined_church_payments |>
+  group_by(fiscal_year) |>
+  summarise(
+    total_amount = sum(amount)
+  ) |>
+  arrange(desc(total_amount))
+
+refined_church_payments |>
+   group_by(fiscal_year) |>
+  summarise(
+    total_amount = sum(amount)
+  ) |>
+  filter(str_detect(agency_name, "Department of Education")) |>
+  arrange(desc(total_amount)) 
+```
+```{r}
+refined_church_payments |>
+    filter(str_detect(agency_name, "DEPARTMENT OF EDUCATION")) |>
+   group_by(fiscal_year, agency_name) |>
+  summarise(
+    total_amount = sum(amount)
+  ) |>
+  arrange(desc(fiscal_year)) 
+ 
+```
+
+#At first, it seems like there is a loosely ascending trend from year to year, but then you see that 2026 is one of the lowest years. I don't think that is because the year is still young because all the payments are dated for the first of the year. I think we see this trend because of inflation rates and the price of resources has been generally increasing over time. This trend is also interesting because the Maryland poverty rate has been generally stable, if not slightly descending over the last 20 years, so it doesn't seem like there are more people in need that require additional resources. 
+
+#We can see that the amount of money that the Department of Education is generally following the overall trend of ascending values before dropping off in 2026. This makes sense because the DoE has the most amount of donations by a lot so when its amount increases, the overall amount is likely to increase as well. 
+
+**Q5** Your editor asks you to summarize your findings about Maryland state payments to religious organizations. Based on your analysis, what patterns have you found? What questions does this data raise that you'd want to investigate further through reporting? What's the best story idea you've found here?
+
+**A5**
+# The patterns I see in this data is that: 1) the Department of Education is indicative of the overall amounts due to the percent of donations that it contributes. 2) The amount of money donated to religious organizations has been increaseing over time but took a dip this year. 3) Catholic organizations are recieving lots of money from the Maryland state government. 
+
+#Some questions that I have are: 1) Do non-religious organizations recieve a similar amount of money? 2) How do differnet denominations/religions vary in donations recieved? Why do the Archdioceses of Baltimore and Washington get so much money? 3) Why is the Department of Education the ones donating most of the money? Why are they not spending that money on public education? 4) Why is the amount of money donated each year increasing? 
+
+# The most interesting story to me that I could come up with was why is the Department of Education donating large amounts of money to charities intended for helping underpriveliged people find food and housing? Also, why are most of the donations going to Catholic churches?
+
+
