@@ -1,6 +1,6 @@
 ---
 title: "Reverse Engineering Project"
-author: "Student names here"
+author: "Danny Martella"
 date: "Date here"
 output:
   html_document:
@@ -25,7 +25,9 @@ In this notebook, we are reverse engineering the story, [STORY NAME](STORY URL)
 Loading required libraries for this analysis.
 
 ```{r echo=FALSE, message=FALSE}
-
+library(tidyverse)
+library(lubridate)
+library(janitor)
 ```
 
 ## Load and Cleaning Data
@@ -34,11 +36,34 @@ In this section, describe the source of the data, write a basic data dictionary 
 
 ```{r}
 # Load required data
-
+majordata <- read_csv("https://umd.instructure.com/files/88374270/download?download_frd=1&verifier=OZV0ivOyNlWt6XKhlwZ3x6Z1NjNkhaDdt0AOhCD1")
 # Path to data should be loaded from folder "data" i.e. read_csv("data/name_of_data.csv")
 
 # Clean required data and prepare for analysis if needed. 
 
+  clean_names(majordata)
+  
+ majordata_dollar <- majordata |>
+    mutate(
+     income_dollar = case_when(
+        str_detect(income, "1") ~ 9999,
+        str_detect(income, "2") ~ 19999,
+        str_detect(income, "3") ~ 29999,
+        str_detect(income, "4") ~ 39999,
+        str_detect(income, "5") ~ 49999,
+        str_detect(income, "6") ~ 59999,
+        str_detect(income, "7") ~ 69999,
+        str_detect(income, "8") ~ 79999,
+        str_detect(income, "9") ~ 89999,
+        str_detect(income, "10") ~ 99999,
+        str_detect(income, "11") ~ 109999,
+        str_detect(income, "12") ~ 119999,
+        str_detect(income, "13") ~ 129999,
+        str_detect(income, "14") ~ 139999,
+        str_detect(income, "15") ~ 149999,
+        str_detect(income, "16") ~ 159999,
+        .default = NA)
+    )
 
 ```
 
@@ -47,15 +72,33 @@ In this notebook, we are reverse engineering five sentences from the story.
 
 ### Sentence 1
 
-* **Sentence text**: [Paste in sentence to engineer here]
-* **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?]
+# **Sentence text**: Hindus report the highest income of any tradition—around $85,000 per year—while three branches of Judaism (Reform, Conservative, and “Other Jew”) all average above $80,000. Episcopalians and members of the PCUSA also land in this high-income, high-education quadrant, both averaging above $75,000.
+# **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?]
+
+
 
 ```{r}
 # Put code to reverse engineer sentence here
 
+
+
+majordata|>
+  group_by(trad) |>
+  summarise(
+    avg_income = round(mean(income)) 
+  ) |>
+  arrange(desc(avg_income))
+
+majordata_dollar|>
+   group_by(trad) |>
+  summarise(
+    avg_income_dollar = round(mean(income_dollar)) 
+  ) |>
+  arrange(desc(avg_income_dollar))
 # Display results of code below this codeblock
 
 ```
+# When I do not add dollar amounts to the income values, the rankings come out similar to the sentence from the article, with similar values in the 16 point scale. However, when I try to add dollar amounts before making the rankings, my list comes out in almost reverse order. 
 
 ### Sentence 2
 
