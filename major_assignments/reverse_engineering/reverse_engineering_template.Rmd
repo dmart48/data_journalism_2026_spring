@@ -102,26 +102,61 @@ majordata_dollar|>
 
 ### Sentence 2
 
-* **Sentence text**: [Paste in sentence to engineer here]
-* **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?]
+* **Sentence text**: "Trump pulled support from over 80% of white evangelicals and under 10% of Black Protestants—even when comparing respondents with the same household income."
+* **Analysis summary**: Based on the code below, I think I got pretty close to what the article was talking about in this sentence. My WEpctT is the percentage of White Evangelicals that voted for Trump and BPpctT is the percentage of Black Protestants that voted for Trump. As you can see we get a figure at around 80% for White Evangelicals and a little over 10% for Black Protestants so I think I'm in the right ballpark. In order to get this close, I had to make my total for each religion those who voted for either Trump or Harris instead of the true total. Then we prove the income part of that statement below when we get very similar percentages when we separate to lower income (LI) and upper income (UI). 
 
 ```{r}
 # Put code to reverse engineer sentence here
+WE <- majordata |> filter(trad == "White Evangelical" & vote_2024 < 3)
+WE_T <- majordata |> filter(trad == "White Evangelical" & vote_2024 == 2)
+BP <- majordata |> filter(trad == "Black Protestant" & vote_2024 < 3)
+BP_T <- majordata |> filter(trad == "Black Protestant" & vote_2024 == 2)
+
+  WEpctT = (nrow(WE_T) / nrow(WE))
+  BPpctT = (nrow(BP_T) / nrow(BP))
+
 
 # Display results of code below this codeblock
+WEpctT
+BPpctT
+  
+```
 
+
+```{r}
+WE_LI <- majordata |> filter(trad == "White Evangelical" & vote_2024 < 3 & income < 9)
+WE_T_LI <- majordata |> filter(trad == "White Evangelical" & vote_2024 == 2 & income < 9)
+BP_LI <- majordata |> filter(trad == "Black Protestant" & vote_2024 < 3 & income < 9)
+BP_T_LI <- majordata |> filter(trad == "Black Protestant" & vote_2024 == 2 & income < 9)
+
+  WEpctT_LI = (nrow(WE_T_LI) / nrow(WE_LI))
+  BPpctT_LI = (nrow(BP_T_LI) / nrow(BP_LI))
+  
+  
+  WE_UI <- majordata |> filter(trad == "White Evangelical" & vote_2024 < 3 & income > 8)
+WE_T_UI <- majordata |> filter(trad == "White Evangelical" & vote_2024 == 2 & income > 8)
+BP_UI <- majordata |> filter(trad == "Black Protestant" & vote_2024 < 3 & income > 8)
+BP_T_UI <- majordata |> filter(trad == "Black Protestant" & vote_2024 == 2 & income > 8)
+
+  WEpctT_UI = (nrow(WE_T_UI) / nrow(WE_UI))
+  BPpctT_UI = (nrow(BP_T_UI) / nrow(BP_UI))
 ```
 
 ### Sentence 3
 
-* **Sentence text**: [Paste in sentence to engineer here]
-* **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?]
+* **Sentence text**: "Among non-white evangelicals who make at least $500K per year, they are only 1.2 percentage points more likely to vote for Donald Trump than members of the same group making less than $10K per year. And that’s actually the largest gap I found."
+* **Analysis summary**: When I do a similar sequence to the previous sentence, because the sentences are similar, I do not get the 1.2 percent gap that he does. I am getting 100% for the Nonwhite evangelicals who make at least 500k and voted for trump, likely because there is only two of them. 
 
 ```{r}
 # Put code to reverse engineer sentence here
+NWE_500 <- majordata |> filter(trad == "Nonwhite Evangelical" & vote_2024 < 3 & income == 16)
+NWE_T_500 <- NWE_500 |> filter(vote_2024 == 2)
 
+NWE_10 <- majordata |> filter(trad == "Nonwhite Evangelical" & vote_2024 < 3 & income == 1)
+NWE_T_10 <- NWE_10 |> filter(vote_2024 == 2)
 # Display results of code below this codeblock
-
+ NWEpctT_500 = (nrow(NWE_T_500) / nrow(NWE_500))
+  NWEpctT_10 = (nrow(NWE_T_10) / nrow(NWE_10))
 ```
 
 ### Sentence 4
