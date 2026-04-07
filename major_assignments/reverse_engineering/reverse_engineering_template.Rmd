@@ -18,7 +18,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction 
 
-In this notebook, we are reverse engineering the story, [STORY NAME](STORY URL)
+In this notebook, we are reverse engineering the story, Why Religion, Not Income, Predicts the American Vote https://thescoop.org/religion/reverse-engineering/predicting-vote.html 
 
 ## Load libraries
 
